@@ -43,7 +43,9 @@ RUN apt install -y \
     qtbase5-dev \
     qt5-qmake \
     qtbase5-dev-tools \
-    libgl1-mesa-dev
+    libgl1-mesa-dev \
+    qtdeclarative5-dev \
+    qml-module-qtquick-controls
 
 # Create a new user and set their home directory
 RUN useradd -m -s /bin/bash fex
