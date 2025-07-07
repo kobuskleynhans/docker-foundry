@@ -151,27 +151,22 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "#endif /* _BITS_SYSCALL_H */" >> /tmp/include/bits/syscall.h && \
     # Now build box86 with our custom includes
     mkdir build && cd build && \
-    # Create custom toolchain file to override ARM-specific flags    echo "set(CMAKE_SYSTEM_NAME Linux)" > /tmp/arm64_toolchain.cmake && \
-    echo "set(CMAKE_SYSTEM_PROCESSOR aarch64)" >> /tmp/arm64_toolchain.cmake && \
-    echo "set(CMAKE_C_FLAGS \"-I/tmp/include -DARM_ARCH=8 -w\")" >> /tmp/arm64_toolchain.cmake && \
-    echo "set(CMAKE_C_FLAGS_RELEASE \"-O2\")" >> /tmp/arm64_toolchain.cmake && \
-    echo "set(CMAKE_C_FLAGS_DEBUG \"-g\")" >> /tmp/arm64_toolchain.cmake && \
-    # Apply the custom toolchain file with additional flags
-    # Modify CMakeLists.txt to remove ARM32-specific flags
-    sed -i 's/-mfpu=neon-fp-armv8//g' ../CMakeLists.txt && \
-    sed -i 's/-mfloat-abi=hard//g' ../CMakeLists.txt && \
-    sed -i 's/-marm//g' ../CMakeLists.txt && \    
-    echo "add_definitions(-DARM_ARCH=8)" >> ../CMakeLists.txt && \
-    echo "add_definitions(-DARM64=1)" >> ../CMakeLists.txt && \
-    echo "add_definitions(-DNO_DYNAREC=1)" >> ../CMakeLists.txt && \
-    # Disable building dynarec_arm component entirely
-    echo "option(DYNAREC \"Enable Dynarec\" OFF)" > ../CMakeOptions.txt && \
-    echo "option(ARM_DYNAREC \"Enable ARM Dynarec\" OFF)" >> ../CMakeOptions.txt && \
-    # Use more aggressive disabling of ARM32 features
-    cmake .. -DARM64=1 -DNOALIGN=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DNO_TRANSLATE=1 -DDYNAREC=OFF -DNO_DYNAREC=ON -DCMAKE_TOOLCHAIN_FILE=/tmp/arm64_toolchain.cmake && \
+    # Create a custom CMakeLists.txt for ARM64
+    echo 'cmake_minimum_required(VERSION 3.10)' > ../CMakeLists.txt && \
+    echo 'project(Box86 C)' >> ../CMakeLists.txt && \
+    echo 'add_definitions(-DARM_ARCH=8 -DARM64=1 -DNO_DYNAREC=1)' >> ../CMakeLists.txt && \
+    echo 'set(CMAKE_C_STANDARD 11)' >> ../CMakeLists.txt && \
+    echo 'set(CMAKE_C_STANDARD_REQUIRED ON)' >> ../CMakeLists.txt && \
+    echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w -I/tmp/include")' >> ../CMakeLists.txt && \
+    echo 'include(CheckFunctionExists.cmake)' >> ../CMakeLists.txt && \
+    echo 'include(CheckIncludeFile.cmake)' >> ../CMakeLists.txt && \
+    echo 'include(CheckLibraryExists.cmake)' >> ../CMakeLists.txt && \
+    echo 'find_package(Threads REQUIRED)' >> ../CMakeLists.txt && \
+    echo 'add_subdirectory(src)' >> ../CMakeLists.txt && \
+    cmake .. -DARM64=1 -DNO_DYNAREC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
     make -j$(nproc) && \
     make install && \
-    cd / && rm -rf /tmp/box86 /tmp/include /tmp/arm64_toolchain.cmake
+    cd / && rm -rf /tmp/box86 /tmp/include
 
 # Add i386 architecture for Wine and SteamCMD
 RUN dpkg --add-architecture i386 && apt-get update && \
