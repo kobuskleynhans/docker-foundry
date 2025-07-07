@@ -51,7 +51,9 @@ USER $USER
 WORKDIR /home/$USER
 
 # Create directory with proper permissions before cloning
-RUN mkdir -p /home/$USER/fex-build && chmod 775 /home/$USER/fex-build
+USER root
+RUN mkdir -p /home/$USER/fex-build && chown $USER:$USER /home/$USER/fex-build && chmod 775 /home/$USER/fex-build
+USER $USER
 WORKDIR /home/$USER/fex-build
 
 # Clone the FEX repository and build it
