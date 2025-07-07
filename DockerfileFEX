@@ -39,6 +39,12 @@ RUN apt-get update && \
     sudo \
     fuse
 
+RUN apt install -y \
+    qtbase5-dev \
+    qt5-qmake \
+    qtbase5-dev-tools \
+    libgl1-mesa-dev
+
 # Create a new user and set their home directory
 RUN useradd -m -s /bin/bash fex
 
@@ -49,12 +55,6 @@ RUN echo "fex ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/fex
 USER fex
 
 WORKDIR /home/fex
-
-RUN apt update && apt install -y \
-    qtbase5-dev \
-    qt5-qmake \
-    qtbase5-dev-tools \
-    libgl1-mesa-dev
 
 # Clone the FEX repository and build it
 RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
