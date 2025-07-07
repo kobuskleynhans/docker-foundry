@@ -26,7 +26,6 @@ RUN apt-get update && \
     tzdata \
     locales \
     ca-certificates \
-    lib32gcc-s1 \
     libgl1-mesa-glx \
     libpulse0 \
     libasound2 \
@@ -40,7 +39,6 @@ RUN apt-get update && \
     libfontconfig1 \
     libfreetype6 \
     libpng16-16 \
-    libjpeg62-turbo \
     libtiff5 \
     libopenal1 \
     libv4l-0 \
@@ -54,8 +52,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Wine
-RUN dpkg --add-architecture i386 && apt-get update && \
-    apt-get install -y --no-install-recommends wine wine64 wine32 winetricks && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wine wine64 libwine winetricks && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and install SteamCMD
