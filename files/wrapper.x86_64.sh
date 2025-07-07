@@ -32,7 +32,8 @@ trap cleanup SIGINT SIGTERM
 
 # Start Xvfb and Wine
 echo "Starting Foundry Dedicated Server via Xvfb and Wine"
-xvfb-run wine "$SERVER_EXE" -log 2>&1 &
+export WINEPREFIX=/home/foundry/.wine
+xvfb-run wine64 "$SERVER_EXE" -log 2>&1 &
 wine_pid=$!
 
 # Wait for the process to complete

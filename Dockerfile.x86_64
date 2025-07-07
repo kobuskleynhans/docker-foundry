@@ -51,9 +51,10 @@ RUN apt-get update && \
     libxtst6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Wine
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wine wine64 libwine winetricks && \
+# Install Wine (both 32-bit and 64-bit)
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends wine wine64 wine32 libwine winetricks && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and install SteamCMD
@@ -62,7 +63,8 @@ RUN mkdir -p /steamcmd && \
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
     tar -xzf steamcmd_linux.tar.gz && \
     rm steamcmd_linux.tar.gz && \
-    chmod +x /steamcmd/steamcmd.sh
+    chmod +x /steamcmd/steamcmd.sh && \
+    /steamcmd/steamcmd.sh +quit || true
 
 # Add new user
 RUN groupadd -g ${PGUID:-1000} $USER && \
@@ -86,13 +88,13 @@ RUN chmod +x $HOME/scripts/*.sh
 # Set up SteamCMD path
 ENV STEAMCMD_PATH=/steamcmd/steamcmd.sh
 
-# Create Wine prefix
+# Create Wine prefix and ensure proper ownership
 RUN WINEARCH=win64 wineboot --init && \
-    winetricks -q vcrun2019 && \
-    winetricks -q dotnet48
+    chmod -R 755 $HOME/.wine && \
+    chown -R $USER:$USER $HOME/.wine
 
-ENTRYPOINT ["/bin/bash", "/home/foundry/scripts/entrypoint.sh"]
-CMD ["/home/foundry/scripts/start.sh"]
+ENTRYPOINT ["/bin/bash", "/home/foundry/scripts/entrypoint.x86_64.sh"]
+CMD ["/home/foundry/scripts/start.x86_64.sh"]
 
 FROM base AS image-cron
 USER root

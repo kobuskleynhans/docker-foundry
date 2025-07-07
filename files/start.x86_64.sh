@@ -28,14 +28,14 @@ echo " "
 if [ ! -z $BETANAME ];then
     if [ ! -z $BETAPASSWORD ]; then
         echo "Using beta $BETANAME with the password $BETAPASSWORD"
-        /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir "$server_files" +login anonymous +app_update "2915550 -beta $BETANAME -betapassword $BETAPASSWORD" validate +quit
+        /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +@sSteamCmdForcePlatformBitness 64 +force_install_dir "$server_files" +login anonymous +app_update "2915550 -beta $BETANAME -betapassword $BETAPASSWORD" validate +quit
     else
         echo "Using beta $BETANAME without a password!" 
-        /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir "$server_files" +login anonymous +app_update "2915550 -beta $BETANAME" validate +quit
+        /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +@sSteamCmdForcePlatformBitness 64 +force_install_dir "$server_files" +login anonymous +app_update "2915550 -beta $BETANAME" validate +quit
     fi
 else
     echo "No beta branch used."
-    /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +force_install_dir "$server_files" +login anonymous +app_update 2915550 validate +quit
+    /steamcmd/steamcmd.sh +@sSteamCmdForcePlatformType windows +@sSteamCmdForcePlatformBitness 64 +force_install_dir "$server_files" +login anonymous +app_update 2915550 validate +quit
 fi
 
 echo "steam_appid: "`cat $server_files/steam_appid.txt`
