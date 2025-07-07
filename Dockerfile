@@ -154,6 +154,7 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     sed -i "s/-marm//g" /tmp/box86/src/CMakeLists.txt && \
     sed -i "s/-mfpu=neon-fp-armv8//g" /tmp/box86/src/CMakeLists.txt && \
     sed -i "s/-mfloat-abi=hard//g" /tmp/box86/src/CMakeLists.txt && \
+    sed -i "s/-msse2//g" /tmp/box86/src/CMakeLists.txt && \
     cd /tmp/box86 && \
     mkdir build && cd build && \
     cmake .. -DARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="-I/tmp/include" && \
