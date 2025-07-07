@@ -1,0 +1,58 @@
+# Foundry Dedicated Server Docker Container 🏭
+[![Docker Hub](https://img.shields.io/badge/Docker_Hub-foundry-blue?logo=docker)](https://hub.docker.com/r/luxusburg/docker-foundry)
+[![Docker Pulls](https://img.shields.io/docker/pulls/luxusburg/docker-foundry)](https://hub.docker.com/r/luxusburg/docker-foundry)
+[![Image Size](https://img.shields.io/docker/image-size/luxusburg/docker-foundry/latest)](https://hub.docker.com/r/luxusburg/docker-foundry/tags)
+[![Github](https://img.shields.io/badge/Github-foundry-blue?logo=github)](https://github.com/luxusburg/docker-foundry)
+![GitHub last commit](https://img.shields.io/github/last-commit/luxusburg/docker-foundry)
+
+This Docker container simplifies hosting your own [Foundry](https://www.paradoxinteractive.com/games/foundry/about) dedicated server. 🚀
+
+It has been tested and confirmed to work on Linux (Ubuntu/Debian). 🐧
+
+Contributions and feedback for improvements are welcome! 🤝
+
+## 📜 Table of Contents
+
+- [✨ Features](#-features)
+- [✅ Prerequisites](#-prerequisites)
+- [🚀 Quick Start](#-quick-start)
+  - [🐳 Using `docker run`](#-using-docker-run)
+  - [🏗️ Using `docker-compose`](#-using-docker-compose)
+- [⚙️ Server Configuration](#-server-configuration)
+  - [🗂️ Volumes](#-volumes)
+- [💾 Backup and Recovery](#-backup-and-recovery)
+- [🧩 Enabling and Managing Mods](#-enabling-and-managing-mods)
+- [🔧 Environment Variables](#-environment-variables)
+  - [🎮 Game Settings](#-game-settings)
+  - [🗳️ Backup Settings](#-backup-settings)
+  - [👤 User PUID/PGID](#-user-puidpgid)
+  - [🧪 Beta Branch](#-beta-branch)
+- [x86_64 Version](#x86_64-version)
+- [💖 Contributing](#-contributing)
+
+## x86_64 Version
+
+An x86_64 version of the Docker image is available for systems that don't support ARM64 architecture. To build and use the x86_64 version:
+
+1. Run the build script:
+   ```bash
+   chmod +x build_x86_64.sh
+   ./build_x86_64.sh
+   ```
+
+2. Run the Docker container:
+   ```bash
+   docker run --name foundry-server \
+     -p 3724:3724/udp \
+     -p 27015:27015/udp \
+     -v /your/path/to/server:/home/foundry/server_files \
+     -v /your/path/to/data:/home/foundry/persistent_data \
+     -e TZ="Your/Timezone" \
+     -e SERVER_NAME="Your Server Name" \
+     -e SERVER_PWD="YourPassword" \
+     -e PAUSE_SERVER_WHEN_EMPTY=true \
+     -e MAX_TRANSFER_RATE=8192 \
+     docker-foundry:latest
+   ```
+
+This version uses native Wine and SteamCMD installations without requiring box64 emulation, making it compatible with standard x86_64 systems.
