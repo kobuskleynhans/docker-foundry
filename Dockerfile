@@ -150,20 +150,12 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "#include <asm/unistd.h>" >> /tmp/include/bits/syscall.h && \
     echo "#endif /* _BITS_SYSCALL_H */" >> /tmp/include/bits/syscall.h && \
     # Now build box86 with our custom includes
+    # Patch CMakeLists.txt to remove problematic flags for ARM64 build
+    sed -i "s/-marm//g" src/CMakeLists.txt && \
+    sed -i "s/-mfpu=neon-fp-armv8//g" src/CMakeLists.txt && \
+    sed -i "s/-mfloat-abi=hard//g" src/CMakeLists.txt && \
     mkdir build && cd build && \
-    # Create a custom CMakeLists.txt for ARM64
-    echo 'cmake_minimum_required(VERSION 3.10)' > ../CMakeLists.txt && \
-    echo 'project(Box86 C)' >> ../CMakeLists.txt && \
-    echo 'add_definitions(-DARM_ARCH=8 -DARM64=1 -DNO_DYNAREC=1)' >> ../CMakeLists.txt && \
-    echo 'set(CMAKE_C_STANDARD 11)' >> ../CMakeLists.txt && \
-    echo 'set(CMAKE_C_STANDARD_REQUIRED ON)' >> ../CMakeLists.txt && \
-    echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w -I/tmp/include")' >> ../CMakeLists.txt && \
-    echo 'include(CheckFunctionExists.cmake)' >> ../CMakeLists.txt && \
-    echo 'include(CheckIncludeFile.cmake)' >> ../CMakeLists.txt && \
-    echo 'include(CheckLibraryExists.cmake)' >> ../CMakeLists.txt && \
-    echo 'find_package(Threads REQUIRED)' >> ../CMakeLists.txt && \
-    echo 'add_subdirectory(src)' >> ../CMakeLists.txt && \
-    cmake .. -DARM64=1 -DNO_DYNAREC=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
+    cmake .. -DARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="-I/tmp/include" && \
     make -j$(nproc) && \
     make install && \
     cd / && rm -rf /tmp/box86 /tmp/include
