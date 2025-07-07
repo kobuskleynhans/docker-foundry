@@ -12,6 +12,13 @@ ENV TZ='Europe/Berlin'
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
+RUN dpkg --add-architecture armhf && \
+    dpkg --add-architecture arm64v8 && \ 
+    apt update && apt install software-properties-common -y
+
+RUN sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
+RUN sed -i "/^# deb.*universe/ s/^# //" /etc/apt/sources.list
+
 # Install dependencies and box64/box86
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -54,24 +61,17 @@ RUN apt-get update && \
     libxrandr2 \
     libxss1 \
     libxtst6 \
+    wine \
+    wine64 \
+    wine32 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
 # Install box64 and box86
 RUN git clone https://github.com/ptitSeb/box64.git /tmp/box64 && \
     cd /tmp/box64 && mkdir build && cd build && cmake .. -DRPI4ARM64=1 --no-warn-unused-cli -Wno-dev && make -j$(nproc) && make install && \
     cd / && rm -rf /tmp/box64
-
-# Add i386 architecture for Wine and SteamCMD
-RUN dpkg --add-architecture armhf && apt-get update && \
-    apt-get install -y --no-install-recommends wine64 wine32 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Download and install SteamCMD (x86_64)
-RUN mkdir -p /opt/steamcmd && \
-    cd /opt/steamcmd && \
-    wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
-    tar -xzf steamcmd_linux.tar.gz && \
-    rm steamcmd_linux.tar.gz
 
 # Add new user
 RUN groupadd -g ${PGUID:-1000} $USER && \
@@ -89,9 +89,6 @@ WORKDIR $HOME
 ADD --chown=$USER:$USER ./files $HOME/scripts
 RUN chmod +x $HOME/scripts/*.sh
 
-# Set up environment for box64/box86
-ENV BOX64_PATH=/usr/local/bin/box64
-ENV BOX86_PATH=/usr/local/bin/box86
 ENV STEAMCMD_PATH=/opt/steamcmd/steamcmd.sh
 
 ENTRYPOINT ["/bin/bash", "/home/foundry/scripts/entrypoint.sh"]

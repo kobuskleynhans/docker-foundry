@@ -94,7 +94,7 @@ copy_mods() {
     echo "Using command file:"
     cat "$MODS_TXT"
     
-    box64 /opt/steamcmd/steamcmd.sh +runscript "$MODS_TXT" || fail "SteamCMD download failed"
+    FEXBash /opt/steamcmd/steamcmd.sh +runscript "$MODS_TXT" || fail "SteamCMD download failed"
     
     # Copy downloaded mods to final location
     copy_mods
