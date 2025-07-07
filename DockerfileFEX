@@ -6,7 +6,7 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 VOLUME ["/home/foundry/server_files", "/home/foundry/persistent_data"]
 
-ENV USER=steam
+ENV USER=foundry
 ENV HOME=/home/$USER
 
 # Install necessary dependencies
