@@ -52,9 +52,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Wine (both 32-bit and 64-bit)
-RUN dpkg --add-architecture i386 && \
+RUN dpkg --add-architecture armhf && \
     apt-get update && \
-    apt-get install -y wine wine32:i386 wine64 winetricks && \
+    apt-get install -y wine wine32 wine64 winetricks && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and install SteamCMD
@@ -89,8 +89,9 @@ RUN chmod +x $HOME/scripts/*.sh
 ENV STEAMCMD_PATH=/steamcmd/steamcmd.sh
 
 # Create Wine prefix and ensure proper ownership
-RUN WINEARCH=win64 wineboot --init && \
-    chmod -R 755 $HOME/.wine && \
+RUN WINEARCH=win64 wineboot --init
+
+RUN chmod -R 755 $HOME/.wine && \
     chown -R $USER:$USER $HOME/.wine
 
 ENTRYPOINT ["/bin/bash", "/home/foundry/scripts/entrypoint.x86_64.sh"]
