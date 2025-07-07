@@ -54,15 +54,8 @@ RUN apt-get update && \
 # Install Wine (both 32-bit and 64-bit)
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y --no-install-recommends wine wine64 winetricks && \
+    apt-get install -y wine wine32:i386 wine64 winetricks && \
     rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -pm755 /etc/apt/keyrings && \
-sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-
-RUN wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-
-RUN dpkg --add-architecture i386 && apt update && apt install -y --install-recommends winehq-devel:i386 libwine
 
 # Download and install SteamCMD
 RUN mkdir -p /steamcmd && \
