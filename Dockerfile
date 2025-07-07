@@ -74,7 +74,6 @@ RUN git clone https://github.com/ptitSeb/box64.git /tmp/box64 && \
 
 # Install box86 with patched syscall definitions
 RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
-    cd /tmp/box86 && \
     # Create a special include directory with required syscall definitions
     mkdir -p /tmp/include/asm && \
     echo "#ifndef _ASM_X86_UNISTD_H" > /tmp/include/asm/unistd.h && \
