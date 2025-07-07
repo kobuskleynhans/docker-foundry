@@ -37,7 +37,10 @@ RUN apt-get update && \
     expect \
     curl \
     sudo \
-    fuse
+    fuse \
+    wine64 \
+    wine \
+    libwine
 
 RUN apt install -y \
     qtbase5-dev \
@@ -72,9 +75,7 @@ RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
 
 WORKDIR /home/fex/FEX/Build
 
-RUN sudo ninja install && \
-    sudo ninja binfmt_misc && \
-    sudo ninja binfmt_misc_64
+RUN sudo ninja install
 
 RUN sudo useradd -m -s /bin/bash steam
 
@@ -83,6 +84,10 @@ RUN sudo apt install -y wget
 USER root
 
 RUN echo 'root:steamcmd' | chpasswd
+
+# Create necessary directories and set permissions
+RUN mkdir -p /home/steam/.fex-emu/RootFS/ && \
+    chown -R steam:steam /home/steam/
 
 USER steam
 
