@@ -40,21 +40,15 @@ RUN apt-get update && \
     fuse
 
 # Create a new user and set their home directory
-RUN useradd -m -s /bin/bash $USER
+RUN useradd -m -s /bin/bash fex
 
-RUN usermod -aG sudo $USER
+RUN usermod -aG sudo fex
 
-RUN echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/$USER
+RUN echo "fex ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/fex
 
-USER $USER
+USER fex
 
-WORKDIR /home/$USER
-
-# Create directory with proper permissions before cloning
-USER root
-RUN mkdir -p /home/$USER/fex-build && chown $USER:$USER /home/$USER/fex-build && chmod 775 /home/$USER/fex-build
-USER $USER
-WORKDIR /home/$USER/fex-build
+WORKDIR /home/fex
 
 # Clone the FEX repository and build it
 RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
@@ -64,7 +58,7 @@ RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
     CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja .. && \
     ninja
 
-WORKDIR /home/$USER/fex-build/FEX/Build
+WORKDIR /home/fex/FEX/Build
 
 RUN sudo ninja install && \
     sudo ninja binfmt_misc_32 && \
@@ -78,9 +72,9 @@ USER root
 
 RUN echo 'root:steamcmd' | chpasswd
 
-USER $USER
+USER steam
 
-WORKDIR /home/$USER/.fex-emu/RootFS/
+WORKDIR /home/steam/.fex-emu/RootFS/
 
 # Set up rootfs
 
@@ -90,11 +84,11 @@ RUN tar xzf Ubuntu_22_04.tar.gz
 
 RUN rm ./Ubuntu_22_04.tar.gz
 
-WORKDIR /home/$USER/.fex-emu
+WORKDIR /home/steam/.fex-emu
 
 RUN echo '{"Config":{"RootFS":"Ubuntu_22_04"}}' > ./Config.json
 
-WORKDIR /home/$USER/Steam
+WORKDIR /home/steam/Steam
 
 # Download and run SteamCMD
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
