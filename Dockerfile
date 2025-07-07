@@ -143,7 +143,7 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "#ifndef _ASM_X86_UNISTD_32_H" > /tmp/include/asm/unistd_32.h && \
     echo "#define _ASM_X86_UNISTD_32_H" >> /tmp/include/asm/unistd_32.h && \
     echo "#include <asm/unistd.h>" >> /tmp/include/asm/unistd_32.h && \
-    echo "#endif /* _ASM_X86_UNISTD_32_H */" >> /tmp/include/asm/unistd_32.h && \    # Create syscall.h for missing definitions
+    echo "#endif /* _ASM_X86_UNISTD_32_H */" >> /tmp/include/asm/unistd_32.h && \
     mkdir -p /tmp/include/bits && \
     echo "#ifndef _BITS_SYSCALL_H" > /tmp/include/bits/syscall.h && \
     echo "#define _BITS_SYSCALL_H" >> /tmp/include/bits/syscall.h && \
