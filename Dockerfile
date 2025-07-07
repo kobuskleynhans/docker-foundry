@@ -79,6 +79,7 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     mkdir -p /tmp/include/asm && \
     echo "#ifndef _ASM_X86_UNISTD_H" > /tmp/include/asm/unistd.h && \
     echo "#define _ASM_X86_UNISTD_H" >> /tmp/include/asm/unistd.h && \
+    # Define all required x86 syscalls
     echo "#define __NR_pipe 42" >> /tmp/include/asm/unistd.h && \
     echo "#define __NR_dup2 63" >> /tmp/include/asm/unistd.h && \
     echo "#define __NR_symlink 83" >> /tmp/include/asm/unistd.h && \
@@ -104,6 +105,21 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "#define __NR_stat64 195" >> /tmp/include/asm/unistd.h && \
     echo "#define __NR_lstat64 196" >> /tmp/include/asm/unistd.h && \
     echo "#define __NR_fstat64 197" >> /tmp/include/asm/unistd.h && \
+    # Add the missing SYS_gettid definition that caused the error
+    echo "#define SYS_gettid 224" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_gettid 224" >> /tmp/include/asm/unistd.h && \
+    # Add additional system call definitions that might be needed
+    echo "#define SYS_clone 120" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_clone 120" >> /tmp/include/asm/unistd.h && \
+    echo "#define SYS_exit 1" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_exit 1" >> /tmp/include/asm/unistd.h && \
+    echo "#define SYS_fork 2" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_fork 2" >> /tmp/include/asm/unistd.h && \
+    echo "#define SYS_waitpid 7" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_waitpid 7" >> /tmp/include/asm/unistd.h && \
+    echo "#define SYS_wait4 114" >> /tmp/include/asm/unistd.h && \
+    echo "#define __NR_wait4 114" >> /tmp/include/asm/unistd.h && \
+    # Define stat64 structure needed for x86 compatibility
     echo "struct stat64 {" >> /tmp/include/asm/unistd.h && \
     echo "    unsigned long long st_dev;" >> /tmp/include/asm/unistd.h && \
     echo "    unsigned long long st_ino;" >> /tmp/include/asm/unistd.h && \
@@ -119,10 +135,25 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "    unsigned long long st_mtime;" >> /tmp/include/asm/unistd.h && \
     echo "    unsigned long long st_ctime;" >> /tmp/include/asm/unistd.h && \
     echo "};" >> /tmp/include/asm/unistd.h && \
+    # Add unistd compatibility macros
+    echo "#define _SC_PAGESIZE 30" >> /tmp/include/asm/unistd.h && \
+    echo "#define _SC_PAGE_SIZE _SC_PAGESIZE" >> /tmp/include/asm/unistd.h && \
     echo "#endif /* _ASM_X86_UNISTD_H */" >> /tmp/include/asm/unistd.h && \
+    # Create unistd_32.h required for ARM builds
+    echo "#ifndef _ASM_X86_UNISTD_32_H" > /tmp/include/asm/unistd_32.h && \
+    echo "#define _ASM_X86_UNISTD_32_H" >> /tmp/include/asm/unistd_32.h && \
+    echo "#include <asm/unistd.h>" >> /tmp/include/asm/unistd_32.h && \
+    echo "#endif /* _ASM_X86_UNISTD_32_H */" >> /tmp/include/asm/unistd_32.h && \
+    # Create syscall.h for missing definitions
+    mkdir -p /tmp/include/bits && \
+    echo "#ifndef _BITS_SYSCALL_H" > /tmp/include/bits/syscall.h && \
+    echo "#define _BITS_SYSCALL_H" >> /tmp/include/bits/syscall.h && \
+    echo "#include <asm/unistd.h>" >> /tmp/include/bits/syscall.h && \
+    echo "#endif /* _BITS_SYSCALL_H */" >> /tmp/include/bits/syscall.h && \
+    # Now build box86 with our custom includes
     mkdir build && cd build && \
-    CFLAGS="-I/tmp/include" cmake .. && \
-    CFLAGS="-I/tmp/include" make -j$(nproc) && \
+    CFLAGS="-I/tmp/include -DARM_ARCH=8 -w" cmake .. -DARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo && \
+    CFLAGS="-I/tmp/include -DARM_ARCH=8 -w" make -j$(nproc) && \
     make install && \
     cd / && rm -rf /tmp/box86 /tmp/include
 
