@@ -62,7 +62,7 @@ RUN git clone https://github.com/ptitSeb/box64.git /tmp/box64 && \
     cd / && rm -rf /tmp/box64
 
 # Add i386 architecture for Wine and SteamCMD
-RUN dpkg --add-architecture i386 && apt-get update && \
+RUN dpkg --add-architecture armhf && apt-get update && \
     apt-get install -y --no-install-recommends wine64 wine32 && \
     rm -rf /var/lib/apt/lists/*
 
