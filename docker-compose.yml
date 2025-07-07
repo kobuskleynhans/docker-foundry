@@ -1,0 +1,40 @@
+services:
+  foundry:
+    container_name: foundry-server
+    image: foundry-fex:latest
+    network_mode: bridge # Or 'host' if preferred, adjust ports accordingly
+    environment:
+      - TZ=Europe/Paris
+      - WORLD_NAME='RMGFoundry'
+      - SERVER_PWD=l3tm31n
+      - SERVER_NAME=Foundry Docker - by RMG
+      - SERVER_MAX_PLAYERS=10
+      - SERVER_IS_PUBLIC=true
+      - PAUSE_SERVER_WHEN_EMPTY=true
+      - AUTOSAVE_INTERVAL=300
+      - MAX_TRANSFER_RATE=8192
+      - CUSTOM_CONFIG=false # Set to true to use a custom app.cfg
+      # Backup Settings
+      - BACKUPS=true
+      - BACKUP_INTERVAL=0 * * * * # Every hour at minute 0
+      - BACKUP_RETENTION=3 # Keep backups older than X days
+      # Mod Settings
+      # - ENABLE_MODS=true # Uncomment to enable mods
+      # PUID/PGID Settings
+      # - PUID=1000
+      # - PGID=1000
+    volumes:
+      - ./server:/home/foundry/server_files:rw
+      - ./data:/home/foundry/persistent_data:rw
+    ports:
+      - "3724:3724/udp"
+      - "27015:27015/udp" # Only needed if SERVER_IS_PUBLIC=true
+    # Add these options to help with permissions and FUSE
+    user: root  # Start as root to ensure proper permissions
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    restart: unless-stopped

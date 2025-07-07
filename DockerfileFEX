@@ -40,7 +40,10 @@ RUN apt-get update && \
     fuse \
     wine64 \
     wine \
-    libwine
+    libwine \
+    xvfb \
+    x11-utils \
+    x11-xserver-utils
 
 RUN apt install -y \
     qtbase5-dev \
@@ -87,6 +90,7 @@ RUN echo 'root:steamcmd' | chpasswd
 
 # Create necessary directories and set permissions
 RUN mkdir -p /home/steam/.fex-emu/RootFS/ && \
+    mkdir -p /home/steam/Steam && \
     chown -R steam:steam /home/steam/
 
 USER steam
@@ -110,11 +114,30 @@ WORKDIR /home/steam/Steam
 # Download and run SteamCMD
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
+# Switch to foundry user for the rest of operations
+USER root
+
+# Create foundry user for the application
+RUN sudo useradd -m -s /bin/bash $USER
+
+# Set up sudo for foundry
+RUN echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/$USER
+
+# Create scripts directory
+RUN sudo mkdir -p $APPHOME/scripts
+RUN sudo chown -R $USER:$USER $APPHOME
+
+# Fix RootFS configuration for foundry user
+RUN mkdir -p $APPHOME/.fex-emu && \
+    echo '{"Config":{"RootFS":"Ubuntu_22_04"}}' > $APPHOME/.fex-emu/Config.json && \
+    mkdir -p $APPHOME/.fex-emu/RootFS && \
+    cp -R /home/steam/.fex-emu/RootFS/Ubuntu_22_04 $APPHOME/.fex-emu/RootFS/ && \
+    chown -R $USER:$USER $APPHOME/.fex-emu
+
 # Copy batch files and give execute rights
 ADD --chown=$USER:$USER ./files $APPHOME/scripts
-RUN chmod +x $APPHOME/scripts/*.sh
+RUN sudo chmod +x $APPHOME/scripts/*.sh
 
-# Switch to foundry user for the rest of operations
 USER $USER
 WORKDIR $APPHOME
 
@@ -123,7 +146,12 @@ CMD ["/home/$USER/scripts/start.sh"]
 
 FROM base AS image-cron
 USER root
+
+# Install cron
+RUN apt-get update && apt-get install -y cron
+
 # Setting up cron file for backup
+RUN mkdir -p /etc/cron.d
 ADD --chown=$USER:$USER ./files/foundry-cron /etc/cron.d/foundry-cron
 RUN chmod 0644 /etc/cron.d/foundry-cron && \
     crontab /etc/cron.d/foundry-cron && \

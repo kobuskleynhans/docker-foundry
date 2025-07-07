@@ -30,6 +30,20 @@ cleanup() {
 # Trap signals
 trap cleanup SIGINT SIGTERM
 
+# Check FEX configuration
+if [ ! -f "$HOME/.fex-emu/Config.json" ]; then
+    echo "FEX configuration not found. Creating default configuration..."
+    mkdir -p "$HOME/.fex-emu"
+    echo '{"Config":{"RootFS":"Ubuntu_22_04"}}' > "$HOME/.fex-emu/Config.json"
+fi
+
+# Verify rootfs exists
+if [ ! -d "$HOME/.fex-emu/RootFS/Ubuntu_22_04" ]; then
+    echo "ERROR: FEX RootFS not found at $HOME/.fex-emu/RootFS/Ubuntu_22_04"
+    echo "Please ensure the FEX RootFS is properly set up"
+    exit 1
+fi
+
 # Start Xvfb and Wine
 echo "Starting Foundry Dedicated Server via Xvfb and Wine"
 xvfb-run FEXBash wine "$SERVER_EXE" -log 2>&1 &
