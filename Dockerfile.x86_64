@@ -62,7 +62,7 @@ sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-bui
 
 RUN wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
 
-RUN sudo apt update && apt install --install-recommends winehq-devel wine32
+RUN dpkg --add-architecture i386 && apt update && apt install -y --install-recommends winehq-devel:i386 libwine
 
 # Download and install SteamCMD
 RUN mkdir -p /steamcmd && \
