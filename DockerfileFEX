@@ -1,6 +1,6 @@
 # filepath: c:\Users\mckob\github.com\kobuskleynhans\docker-foundry\DockerfileFEX
 # Use the official Ubuntu 22.04 as the base image
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS base
 
 # Set environment variables to avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -50,6 +50,10 @@ USER $USER
 
 WORKDIR /home/$USER
 
+# Create directory with proper permissions before cloning
+RUN mkdir -p /home/$USER/fex-build && chmod 775 /home/$USER/fex-build
+WORKDIR /home/$USER/fex-build
+
 # Clone the FEX repository and build it
 RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
     cd FEX && \
@@ -58,7 +62,7 @@ RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
     CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja .. && \
     ninja
 
-WORKDIR /home/$USER/FEX/Build
+WORKDIR /home/$USER/fex-build/FEX/Build
 
 RUN sudo ninja install && \
     sudo ninja binfmt_misc_32 && \
@@ -66,7 +70,7 @@ RUN sudo ninja install && \
 
 RUN sudo useradd -m -s /bin/bash steam
 
-RUN sudo apt install wget
+RUN sudo apt install -y wget
 
 USER root
 
