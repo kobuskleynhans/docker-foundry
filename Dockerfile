@@ -151,9 +151,10 @@ RUN git clone https://github.com/ptitSeb/box86.git /tmp/box86 && \
     echo "#endif /* _BITS_SYSCALL_H */" >> /tmp/include/bits/syscall.h && \
     # Now build box86 with our custom includes
     # Patch CMakeLists.txt to remove problematic flags for ARM64 build
-    sed -i "s/-marm//g" src/CMakeLists.txt && \
-    sed -i "s/-mfpu=neon-fp-armv8//g" src/CMakeLists.txt && \
-    sed -i "s/-mfloat-abi=hard//g" src/CMakeLists.txt && \
+    sed -i "s/-marm//g" /tmp/box86/src/CMakeLists.txt && \
+    sed -i "s/-mfpu=neon-fp-armv8//g" /tmp/box86/src/CMakeLists.txt && \
+    sed -i "s/-mfloat-abi=hard//g" /tmp/box86/src/CMakeLists.txt && \
+    cd /tmp/box86 && \
     mkdir build && cd build && \
     cmake .. -DARM64=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="-I/tmp/include" && \
     make -j$(nproc) && \
