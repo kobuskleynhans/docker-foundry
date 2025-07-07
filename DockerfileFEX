@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 VOLUME ["/home/foundry/server_files", "/home/foundry/persistent_data"]
 
 ENV USER=foundry
-ENV HOME=/home/$USER
+ENV APPHOME=/home/$USER
 
 # Install necessary dependencies
 RUN apt-get update && \
@@ -63,7 +63,11 @@ RUN git clone --recurse-submodules https://github.com/FEX-Emu/FEX.git && \
     cd FEX && \
     mkdir Build && \
     cd Build && \
-    CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False -DENABLE_ASSERTIONS=False -G Ninja .. && \
+    CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DUSE_LINKER=lld -DENABLE_LTO=True -DBUILD_TESTS=False \
+    -DENABLE_JEMALLOC=False \
+    -DCMAKE_CXX_COMPILER_LAUNCHER="" \
+    -DCMAKE_C_COMPILER_LAUNCHER="" \
+    -DENABLE_ASSERTIONS=False -G Ninja .. && \
     ninja
 
 WORKDIR /home/fex/FEX/Build
@@ -102,12 +106,12 @@ WORKDIR /home/steam/Steam
 RUN curl -sqL "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" | tar zxvf -
 
 # Copy batch files and give execute rights
-ADD --chown=$USER:$USER ./files $HOME/scripts
-RUN chmod +x $HOME/scripts/*.sh
+ADD --chown=$USER:$USER ./files $APPHOME/scripts
+RUN chmod +x $APPHOME/scripts/*.sh
 
 # Switch to foundry user for the rest of operations
 USER $USER
-WORKDIR $HOME
+WORKDIR $APPHOME
 
 ENTRYPOINT ["/bin/bash", "/home/$USER/scripts/entrypoint.sh"]
 CMD ["/home/$USER/scripts/start.sh"]
